@@ -27,6 +27,7 @@ class AssetSubfolderAccessPlugin extends BasePlugin
 	{
 		return array(
 			'accessibleFolders' => array(AttributeType::Mixed, 'default' => array()),
+			'generalSettings' => array(AttributeType::Mixed, 'default' => array()),
 		);
 	}
 
@@ -99,6 +100,23 @@ class AssetSubfolderAccessPlugin extends BasePlugin
 			}
 		}
 
+		$html .= '<hr />';
+		$html .= '<h3>General Settings: </h3>';		
+		
+		$generalSettings = $this->getSettings()->generalSettings;
+		$checked = false;
+		if ($generalSettings['prefix']) $checked = true;
+		$html .= craft()->templates->renderMacro('_includes/forms', 'checkboxField', array(
+			array(
+				'label' => ' Prefixes',
+				'instructions' => 'Choose whether you want to prefix subfolder labels with their parent folder name',
+				'name' => 'generalSettings[prefix]',
+				'options' => 'Yes',
+				'values' => 'Yes',
+				'checked' => $checked,
+			)
+		));
+
 		return $html;
 	}
 
@@ -113,7 +131,7 @@ class AssetSubfolderAccessPlugin extends BasePlugin
 		$accessibleFolders = $this->getSettings()->accessibleFolders;
 
 		$i = 0;
-
+		$output = $sources; 
 		foreach ($sources as $key => $source)
 		{
 			// Is this an asset folder, and are we limiting access to its subfolders?
@@ -123,9 +141,9 @@ class AssetSubfolderAccessPlugin extends BasePlugin
 			{
 				$newSources = $this->_filterSubfolderSources($source, $parentFolderId, $accessibleFolders);
 
-				$sources = array_slice($sources, 0, $i, true) +
+				$output = array_slice($output, 0, $i, true) +
 					$newSources +
-					array_slice($sources, $i + 1, null, true);
+					array_slice($output, $i + 1, null, true);
 
 				$i += count($newSources);
 			}
@@ -134,6 +152,7 @@ class AssetSubfolderAccessPlugin extends BasePlugin
 				$i++;
 			}
 		}
+		$sources = $output;
 	}
 
 	private function _getFolderIdFromSourceKey($key)
@@ -181,6 +200,9 @@ class AssetSubfolderAccessPlugin extends BasePlugin
 		}
 
 		$newSources = $parentSource['nested'];
+		
+		$generalSettings = $this->getSettings()->generalSettings;		
+		$labelPrefix = $parentSource['label'];
 
 		foreach ($newSources as $key => $source)
 		{
@@ -189,6 +211,9 @@ class AssetSubfolderAccessPlugin extends BasePlugin
 			if ($subfolderId === false || !$this->_canAccessSubfolder($parentFolderId, $subfolderId, $accessibleFolders))
 			{
 				unset($newSources[$key]);
+			} else {		
+				$label = $labelPrefix . ': ' . ucfirst($newSources[$key]['label']);		
+				if ($generalSettings['prefix']) $newSources[$key]['label'] = $label;		
 			}
 		}
 
