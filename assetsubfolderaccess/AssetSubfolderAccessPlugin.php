@@ -3,33 +3,73 @@ namespace Craft;
 
 class AssetSubfolderAccessPlugin extends BasePlugin
 {
-	function getName()
+	/**
+	 * @return mixed
+	 */
+	public function getName()
 	{
 		return Craft::t('Asset Subfolder Access');
 	}
 
-	function getVersion()
+	/**
+	 * @return string
+	 */
+	public function getVersion()
 	{
 		return '1.0';
 	}
 
-	function getDeveloper()
+	/**
+	 * @return string
+	 */
+	public function getSchemaVersion()
+	{
+		return '1.0.0';
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getDeveloper()
 	{
 		return 'Pixel & Tonic';
 	}
 
-	function getDeveloperUrl()
+	/**
+	 * @return string
+	 */
+	public function getDeveloperUrl()
 	{
 		return 'http://pixelandtonic.com';
 	}
 
-	protected function defineSettings()
+	/**
+	 * @return string
+	 */
+	public function getPluginUrl()
 	{
-		return array(
-			'accessibleFolders' => array(AttributeType::Mixed, 'default' => array()),
-		);
+		return 'https://github.com/pixelandtonic/AssetSubfolderAccess';
 	}
 
+	/**
+	 * @return string
+	 */
+	public function getDocumentationUrl()
+	{
+		return $this->getPluginUrl().'/blob/master/README.md';
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getReleaseFeedUrl()
+	{
+		return 'https://raw.githubusercontent.com/pixelandtonic/AssetSubfolderAccess/master/releases.json';
+	}
+
+	/**
+	 * @return string
+	 */
 	public function getSettingsHtml()
 	{
 		$html = '<p class="first">For each user group, choose which subfolders they should be allowed to access from the Assets index page.</p>';
@@ -102,6 +142,10 @@ class AssetSubfolderAccessPlugin extends BasePlugin
 		return $html;
 	}
 
+	/**
+	 * @param $sources
+	 * @param $context
+	 */
 	public function modifyAssetSources(&$sources, $context)
 	{
 		// If the current user is an admin, just let them see everything
@@ -136,6 +180,21 @@ class AssetSubfolderAccessPlugin extends BasePlugin
 		}
 	}
 
+	/**
+	 * @return array
+	 */
+	protected function defineSettings()
+	{
+		return array(
+			'accessibleFolders' => array(AttributeType::Mixed, 'default' => array()),
+		);
+	}
+
+	/**
+	 * @param $key
+	 *
+	 * @return bool|int
+	 */
 	private function _getFolderIdFromSourceKey($key)
 	{
 		if (strncmp($key, 'folder:', 7) === 0)
@@ -148,6 +207,12 @@ class AssetSubfolderAccessPlugin extends BasePlugin
 		}
 	}
 
+	/**
+	 * @param $parentFolderId
+	 * @param $accessibleFolders
+	 *
+	 * @return bool
+	 */
 	private function _shouldOverrideSource($parentFolderId, $accessibleFolders)
 	{
 		$userGroups = craft()->userSession->getUser()->getGroups();
@@ -173,6 +238,13 @@ class AssetSubfolderAccessPlugin extends BasePlugin
 		return true;
 	}
 
+	/**
+	 * @param $parentSource
+	 * @param $parentFolderId
+	 * @param $accessibleFolders
+	 *
+	 * @return array
+	 */
 	private function _filterSubfolderSources($parentSource, $parentFolderId, $accessibleFolders)
 	{
 		if (!isset($parentSource['nested']))
@@ -195,6 +267,13 @@ class AssetSubfolderAccessPlugin extends BasePlugin
 		return $newSources;
 	}
 
+	/**
+	 * @param $parentFolderId
+	 * @param $subfolderId
+	 * @param $accessibleFolders
+	 *
+	 * @return bool
+	 */
 	private function _canAccessSubfolder($parentFolderId, $subfolderId, $accessibleFolders)
 	{
 		$userGroups = craft()->userSession->getUser()->getGroups();

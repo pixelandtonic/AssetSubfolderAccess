@@ -22,3 +22,14 @@ To limit a user group’s access to an asset source, follow these steps:
 Note that if a user belongs to multiple groups, and one of the groups has access to the entire asset source from the Asset Subfolder Access settings, then the restrictions won’t be applied.
 
 Admins will always have access to the entire asset source, regardless of what user group(s) they may belong to.
+
+
+## Changelog
+
+### 1.1
+
+- Updated to take advantage of new Craft 2.5 plugin features.
+
+### 1.0
+
+- Initial release
