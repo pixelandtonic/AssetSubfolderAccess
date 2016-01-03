@@ -157,6 +157,7 @@ class AssetSubfolderAccessPlugin extends BasePlugin
 		$accessibleFolders = $this->getSettings()->accessibleFolders;
 
 		$i = 0;
+		$output = $sources;
 
 		foreach ($sources as $key => $source)
 		{
@@ -167,9 +168,9 @@ class AssetSubfolderAccessPlugin extends BasePlugin
 			{
 				$newSources = $this->_filterSubfolderSources($source, $parentFolderId, $accessibleFolders);
 
-				$sources = array_slice($sources, 0, $i, true) +
+				$output = array_slice($output, 0, $i, true) +
 					$newSources +
-					array_slice($sources, $i + 1, null, true);
+					array_slice($output, $i + 1, null, true);
 
 				$i += count($newSources);
 			}
@@ -177,6 +178,8 @@ class AssetSubfolderAccessPlugin extends BasePlugin
 			{
 				$i++;
 			}
+
+			$sources = $output;
 		}
 	}
 
