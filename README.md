@@ -26,7 +26,11 @@ Admins will always have access to the entire asset source, regardless of what us
 
 ## Changelog
 
-### 1.1
+### 1.1.1
+
+- Fixed a performance issue with a large number of nested subfolders.
+
+### 1.1.0
 
 - Updated to take advantage of new Craft 2.5 plugin features.
 
