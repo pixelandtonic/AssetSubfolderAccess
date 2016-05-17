@@ -156,10 +156,11 @@ class AssetSubfolderAccessPlugin extends BasePlugin
 
 		$accessibleFolders = $this->getSettings()->accessibleFolders;
 
+		// Get a non-by-reference copy of the array.
+		$incomingSources = $sources;
 		$i = 0;
-		$output = $sources;
 
-		foreach ($sources as $key => $source)
+		foreach ($incomingSources as $key => $source)
 		{
 			// Is this an asset folder, and are we limiting access to its subfolders?
 			$parentFolderId = $this->_getFolderIdFromSourceKey($key);
@@ -168,9 +169,10 @@ class AssetSubfolderAccessPlugin extends BasePlugin
 			{
 				$newSources = $this->_filterSubfolderSources($source, $parentFolderId, $accessibleFolders);
 
-				$output = array_slice($output, 0, $i, true) +
+				// Modify the original passed-by-reference array
+				$sources = array_slice($sources, 0, $i, true) +
 					$newSources +
-					array_slice($output, $i + 1, null, true);
+					array_slice($sources, $i + 1, null, true);
 
 				$i += count($newSources);
 			}
@@ -178,8 +180,6 @@ class AssetSubfolderAccessPlugin extends BasePlugin
 			{
 				$i++;
 			}
-
-			$sources = $output;
 		}
 	}
 
