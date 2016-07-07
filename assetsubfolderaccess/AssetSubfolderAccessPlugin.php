@@ -283,7 +283,8 @@ class AssetSubfolderAccessPlugin extends BasePlugin
 
 		foreach ($userGroups as $group)
 		{
-			if (in_array($subfolderId, $accessibleFolders[$group->id][$parentFolderId]))
+			$folders = $accessibleFolders[$group->id][$parentFolderId];
+			if ($folders == '*'  || (is_array($folders) && in_array($subfolderId, $folders)))
 			{
 				return true;
 			}
