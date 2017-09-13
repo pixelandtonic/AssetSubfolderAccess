@@ -1,0 +1,46 @@
+{
+  "name": "craftcms/asset-subfolder-access",
+  "description": "This plugin makes it possible to limit user groups to only access certain subfolders of your asset sources.",
+  "version": "2.0.0",
+  "type": "craft-plugin",
+  "keywords": [
+    "html",
+    "cms",
+    "craftcms",
+    "yii2"
+  ],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Pixel & Tonic",
+      "homepage": "https://pixelandtonic.com/"
+    }
+  ],
+  "support": {
+    "email": "support@craftcms.com",
+    "issues": "https://github.com/craftcms/asset-subfolder-access/issues?state=open",
+    "source": "https://github.com/craftcms/asset-subfolder-access",
+    "docs": "https://github.com/craftcms/asset-subfolder-access",
+    "rss": "https://github.com/craftcms/asset-subfolder-access/commits/v2.atom"
+  },
+  "require": {
+    "craftcms/cms": "~3.0.0-beta.26"
+  },
+  "autoload": {
+    "psr-4": {
+      "craft\\assetsubfolderaccess\\": "src/"
+    }
+  },
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "https://asset-packagist.org"
+    }
+  ],
+  "extra": {
+    "name": "Asset Subfolder Access",
+    "handle": "asset-subfolder-access",
+    "changelogUrl": "https://raw.githubusercontent.com/craftcms/asset-subfolder-access/v2/CHANGELOG.md",
+    "downloadUrl": "https://github.com/craftcms/asset-subfolder-access/archive/v2.zip"
+  }
+}
