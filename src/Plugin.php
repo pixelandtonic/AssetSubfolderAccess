@@ -1,76 +1,59 @@
 <?php
-namespace Craft;
+namespace craft\assetsubfolderaccess;
 
-class AssetSubfolderAccessPlugin extends BasePlugin
+use craft\base\Element;
+use craft\elements\Entry;
+use craft\events\RegisterElementSourcesEvent;
+use yii\base\Event;
+
+class Plugin extends \craft\base\Plugin
 {
-	/**
-	 * @return mixed
-	 */
-	public function getName()
-	{
-		return Craft::t('Asset Subfolder Access');
-	}
+
+    public function init(){
+        parent::init();
+
+
+        Event::on(Entry::class, Element::EVENT_REGISTER_SOURCES, function(RegisterElementSourcesEvent $event) {
+            // If the current user is an admin, just let them see everything
+            if (craft()->userSession->isAdmin())
+            {
+                return;
+            }
+
+            $accessibleFolders = $this->getSettings()->accessibleFolders;
+
+            // Get a non-by-reference copy of the array.
+            $incomingSources = $event->sources;
+            $i = 0;
+
+            foreach ($incomingSources as $key => $source)
+            {
+                // Is this an asset folder, and are we limiting access to its subfolders?
+                $parentFolderId = $this->_getFolderIdFromSourceKey($key);
+
+                if ($parentFolderId !== false && $this->_shouldOverrideSource($parentFolderId, $accessibleFolders))
+                {
+                    $newSources = $this->_filterSubfolderSources($source, $parentFolderId, $accessibleFolders);
+
+                    // Modify the original passed-by-reference array
+                    $sources = array_slice($event->sources, 0, $i, true) +
+                        $newSources +
+                        array_slice($event->sources, $i + 1, null, true);
+
+                    $i += count($newSources);
+                }
+                else
+                {
+                    $i++;
+                }
+            }
+        });
+    }
 
 	/**
 	 * @return string
 	 */
-	public function getVersion()
-	{
-		return '1.1.1';
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getSchemaVersion()
-	{
-		return '1.0.0';
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getDeveloper()
-	{
-		return 'Pixel & Tonic';
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getDeveloperUrl()
-	{
-		return 'http://pixelandtonic.com';
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getPluginUrl()
-	{
-		return 'https://github.com/pixelandtonic/AssetSubfolderAccess';
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getDocumentationUrl()
-	{
-		return $this->getPluginUrl().'/blob/master/README.md';
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getReleaseFeedUrl()
-	{
-		return 'https://raw.githubusercontent.com/pixelandtonic/AssetSubfolderAccess/master/releases.json';
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getSettingsHtml()
+	public function settingsHtml()
 	{
 		$html = '<p class="first">For each user group, choose which subfolders they should be allowed to access from the Assets index page.</p>';
 
@@ -142,56 +125,6 @@ class AssetSubfolderAccessPlugin extends BasePlugin
 		return $html;
 	}
 
-	/**
-	 * @param $sources
-	 * @param $context
-	 */
-	public function modifyAssetSources(&$sources, $context)
-	{
-		// If the current user is an admin, just let them see everything
-		if (craft()->userSession->isAdmin())
-		{
-			return;
-		}
-
-		$accessibleFolders = $this->getSettings()->accessibleFolders;
-
-		// Get a non-by-reference copy of the array.
-		$incomingSources = $sources;
-		$i = 0;
-
-		foreach ($incomingSources as $key => $source)
-		{
-			// Is this an asset folder, and are we limiting access to its subfolders?
-			$parentFolderId = $this->_getFolderIdFromSourceKey($key);
-
-			if ($parentFolderId !== false && $this->_shouldOverrideSource($parentFolderId, $accessibleFolders))
-			{
-				$newSources = $this->_filterSubfolderSources($source, $parentFolderId, $accessibleFolders);
-
-				// Modify the original passed-by-reference array
-				$sources = array_slice($sources, 0, $i, true) +
-					$newSources +
-					array_slice($sources, $i + 1, null, true);
-
-				$i += count($newSources);
-			}
-			else
-			{
-				$i++;
-			}
-		}
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function defineSettings()
-	{
-		return array(
-			'accessibleFolders' => array(AttributeType::Mixed, 'default' => array()),
-		);
-	}
 
 	/**
 	 * @param $key
